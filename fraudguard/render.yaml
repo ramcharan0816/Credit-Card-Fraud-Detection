@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fraudguard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python train_model.py --demo-if-missing
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9

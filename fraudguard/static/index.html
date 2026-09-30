@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FraudGuard – Credit Card Fraud Detection</title>
+<style>
+:root{--bg:#f7f9fc;--card:#fff;--ink:#16223a;--mut:#5d6b85;--line:#e3e8f1;--a:#3b5bdb;--a2:#e8eeff;--ok:#12805c;--okb:#e3f6ee;--bad:#c92a2a;--badb:#fdeaea}
+*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+nav{max-width:1080px;margin:auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
+nav b{font-size:18px}nav b span{color:var(--a)}nav a{color:var(--mut);text-decoration:none;margin-left:20px;font-size:14px}nav a:hover{color:var(--a)}
+main{max-width:1080px;margin:auto;padding:0 20px 60px}
+.hero{padding:56px 0 30px;text-align:center}.hero h1{font-size:40px;line-height:1.15;margin:0 0 12px}.hero p{color:var(--mut);max-width:640px;margin:auto}
+.pill{display:inline-block;background:var(--a2);color:var(--a);padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600;margin-bottom:14px}
+.banner{display:none;background:#fff6e0;border:1px solid #f2d88a;color:#7a5b00;padding:10px 14px;border-radius:10px;margin:14px 0;font-size:14px}
+h2{font-size:24px;margin:44px 0 6px}.sub{color:var(--mut);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 1px 3px rgba(20,40,90,.04)}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1.25fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr 1fr}.hero h1{font-size:30px}}@media(max-width:520px){.g2,.g3,.g4{grid-template-columns:1fr}}
+label{font-size:13px;font-weight:600;color:var(--mut);display:block;margin-bottom:4px}
+input,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}
+input:focus,textarea:focus{outline:2px solid var(--a2);border-color:var(--a)}
+.btn{background:var(--a);color:#fff;border:0;padding:11px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:15px}.btn:hover{background:#2f49b8}
+.btn.s{background:var(--a2);color:var(--a)}.btn.s:hover{background:#d8e2ff}.row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+details{margin-top:12px}summary{cursor:pointer;color:var(--a);font-weight:600;font-size:14px}
+.vs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.vs label{font-size:11px;margin:0}.vs input{padding:6px 8px;font-size:13px}
+.res{text-align:center;padding:26px 16px;border-radius:12px;background:var(--bg);border:1px dashed var(--line);color:var(--mut)}
+.res.ok{background:var(--okb);border:1px solid #b6e6d3;color:var(--ok)}.res.bad{background:var(--badb);border:1px solid #f5bcbc;color:var(--bad)}
+.res .big{font-size:28px;font-weight:800}.bar{height:10px;background:#fff;border-radius:9px;margin:14px 0 6px;overflow:hidden;border:1px solid var(--line)}.bar i{display:block;height:100%;background:currentColor}
+.stat{text-align:center}.stat b{font-size:28px;display:block;color:var(--a)}.stat span{font-size:13px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-weight:600}
+.steps{counter-reset:s}.steps div{position:relative;padding-left:44px;margin-bottom:14px}.steps div:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--a2);color:var(--a);font-weight:700;display:grid;place-items:center}
+.note{font-size:13px;color:var(--mut)}footer{text-align:center;color:var(--mut);font-size:13px;padding:24px}
+</style></head><body>
+<header><nav><b>Fraud<span>Guard</span></b><div><a href="#try">Try it</a><a href="#model">Model</a><a href="#perf">Performance</a><a href="#limits">Limits</a></div></nav></header>
+<main>
+<section class="hero"><span class="pill">Machine-learning fraud screening</span>
+<h1>Spot suspicious card transactions in a click</h1>
+<p>A Decision Tree classifier trained on 280,809 anonymised European card transactions flags likely fraud from the transaction amount and 28 anonymised behavioural features.</p></section>
+<div class="banner" id="demo"><b>Demo model active.</b> No trained model file was found, so predictions come from a synthetic stand-in. Run <code>train_model.py --csv creditcard.csv</code> and redeploy to use the real model.</div>
+
+<h2 id="try">Check a transaction</h2><p class="sub">Enter an amount, load a sample profile, or fill in the anonymised features.</p>
+<div class="grid g2">
+<div class="card">
+<label for="amt">Transaction amount (€)</label><input id="amt" type="number" min="0" step="0.01" value="42.50">
+<div class="row"><button class="btn s" onclick="preset('normal')">Everyday purchase</button><button class="btn s" onclick="preset('fraud')">Suspicious profile</button><button class="btn s" onclick="preset('reset')">Clear</button></div>
+<details><summary>Anonymised features V1–V28 (PCA components)</summary><div class="vs" id="vs"></div>
+<label style="margin-top:14px">Or paste a dataset row: 28 values V1…V28, then Amount</label><textarea id="paste" rows="2" placeholder="-1.36,-0.07,2.53,…,149.62"></textarea><div class="row"><button class="btn s" onclick="pasteRow()">Load row</button></div></details>
+<div class="row"><button class="btn" id="go" onclick="predict()">Analyse transaction</button></div>
+<p class="note">Presets are illustrative profiles (typical legitimate ≈ average values; suspicious ≈ the average pattern of known fraud), not real customer data.</p>
+</div>
+<div class="card"><div class="res" id="res">Result will appear here</div><p class="note" style="margin-top:12px">Probability comes from the fraction of training fraud cases in the matching tree leaf, so it is often close to 0% or 100%.</p></div>
+</div>
+
+<h2 id="model">About the model</h2><p class="sub">Everything the notebook does, end to end.</p>
+<div class="grid g4"><div class="card stat"><b>280,809</b><span>transactions after cleaning</span></div><div class="card stat"><b>474</b><span>fraud cases (0.169%)</span></div><div class="card stat"><b>29</b><span>input features</span></div><div class="card stat"><b>70/30</b><span>train / test split</span></div></div>
+<div class="grid g2" style="margin-top:16px">
+<div class="card"><div class="steps">
+<div><b>Load & clean</b><br>Read <code>creditcard.csv</code>, skip malformed lines, coerce to numbers, drop incomplete rows.</div>
+<div><b>Scale amount</b><br><code>Amount</code> is standardised with <code>StandardScaler</code>; <code>Time</code> is dropped.</div>
+<div><b>Split</b><br>Train 196,566 rows, test 84,243 rows (<code>random_state=0</code>).</div>
+<div><b>Train</b><br><code>DecisionTreeClassifier(criterion="entropy", random_state=0)</code>.</div>
+<div><b>Evaluate</b><br>Confusion matrix, precision/recall/F1 and accuracy on held-out data.</div></div></div>
+<div class="card"><b>Inputs</b><p class="note">V1–V28 are principal components of the original card data, anonymised by the dataset's publishers for confidentiality. Only <b>Amount</b> is a readable feature.</p>
+<b>Why a Decision Tree?</b><p class="note">It is fast, needs no GPU, and is easy to serve. Trade-off: a single tree can overfit, so ensembles are a natural next step.</p>
+<b>Stack</b><p class="note">Python · scikit-learn · Flask · Gunicorn · Render</p></div></div>
+
+<h2 id="perf">Performance</h2><p class="sub">Held-out test set: 84,243 transactions, of which 161 are fraud.</p>
+<div class="card"><table><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr>
+<tr><td>Legitimate</td><td>1.00</td><td>1.00</td><td>1.00</td><td>84,082</td></tr><tr><td><b>Fraud</b></td><td><b>0.77</b></td><td><b>0.74</b></td><td><b>0.76</b></td><td>161</td></tr></table>
+<p class="note" style="margin-top:12px">Overall accuracy is 99.91%, but because fraud is only ~0.17% of transactions, accuracy alone is misleading. Fraud precision and recall are the numbers that matter: roughly 3 in 4 frauds are caught, and about 3 in 4 alerts are real. (Scoring on the full dataset gives 0.93/0.91, but that includes training rows and is over-optimistic.)</p></div>
+
+<h2 id="limits">Limitations & responsible use</h2>
+<div class="grid g3"><div class="card"><b>Screening aid only</b><p class="note">Not a substitute for a bank's fraud team; flagged transactions need human review.</p></div>
+<div class="card"><b>Dataset scope</b><p class="note">Trained on European card data from a short period; patterns may not generalise to other regions or later fraud tactics.</p></div>
+<div class="card"><b>Imbalanced data</b><p class="note">Very few fraud examples limit what a single tree can learn. Expect false alarms and missed cases.</p></div></div>
+</main><footer>FraudGuard · educational project · <a href="https://github.com/ramcharan0816/Credit-Card-Fraud-Detection" style="color:var(--a)">GitHub</a></footer>
+<script>
+const $=id=>document.getElementById(id),vs=$('vs');
+for(let i=1;i<=28;i++)vs.insertAdjacentHTML('beforeend',`<div><label>V${i}</label><input type="number" step="any" value="0" id="v${i}"></div>`);
+const F=[-4.77,3.62,-7.03,4.54,-3.15,-1.40,-5.57,0.57,-2.58,-5.68,3.80,-6.26,-0.11,-6.97,-0.09,-4.14,-6.67,-2.24,0.68,0.37,0.71,0.01,-0.04,-0.10,0.04,0.05,0.17,0.08];
+function fill(a){a.forEach((x,i)=>$('v'+(i+1)).value=(+x).toFixed(2))}
+function preset(k){if(k==='fraud'){fill(F);$('amt').value=1.0}else if(k==='normal'){fill(F.map(()=>0));$('amt').value=42.5}else{fill(F.map(()=>0));$('amt').value=0}}
+function pasteRow(){const p=$('paste').value.split(/[,\s]+/).filter(Boolean).map(Number);if(p.length<29||p.some(isNaN))return alert('Need 29 numbers: V1…V28 then Amount');fill(p.slice(0,28));$('amt').value=p[28]}
+async function predict(){
+ const r=$('res'),b=$('go');b.disabled=true;r.className='res';r.textContent='Analysing…';
+ try{const res=await fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:+$('amt').value,features:Array.from({length:28},(_,i)=>+$('v'+(i+1)).value)})});
+ const d=await res.json();if(!res.ok)throw Error(d.error);const pc=(d.probability*100).toFixed(1);
+ r.className='res '+(d.fraud?'bad':'ok');
+ r.innerHTML=`<div class="big">${d.fraud?'⚠ Likely fraud':'✓ Looks legitimate'}</div><div class="bar"><i style="width:${pc}%"></i></div>Fraud probability: <b>${pc}%</b>`+(d.model_source==='demo'?'<div class="note" style="margin-top:8px">(demo model)</div>':'')}
+ catch(e){r.textContent='Error: '+e.message}b.disabled=false}
+fetch('/api/health').then(r=>r.json()).then(d=>{if(d.model_source==='demo')$('demo').style.display='block'}).catch(()=>{});
+</script></body></html>
